@@ -1,0 +1,116 @@
+int player1Score = 0;
+int player2Score = 0;
+
+float ballX, ballY;
+float ballSpeedX, ballSpeedY;
+float ballSize = 20;
+
+float paddleWidth = 20;
+float paddleHeight = 100;
+float paddleSpeed = 10;
+
+float player1X, player1Y;
+float player2X, player2Y;
+
+boolean w, s, up, down;
+
+void setup() {
+  size(800, 600);
+  reset();
+}
+
+void reset() {
+  ballX = width / 2;
+  ballY = height / 2;
+  ballSpeedX = random(-5, 5);
+  ballSpeedY = random(3, 5);
+  
+  player1X = 0;
+  player1Y = height / 2 - paddleHeight / 2;
+  player2X = width - paddleWidth;
+  player2Y = height / 2 - paddleHeight / 2;
+}
+
+void draw() {
+  background(0);
+  
+  // Draw scores
+  fill(255);
+  textSize(32);
+  textAlign(CENTER);
+  text(player1Score + " - " + player2Score, width / 2, 50);
+  
+  // Draw paddles
+  fill(255);
+  rect(player1X, player1Y, paddleWidth, paddleHeight);
+  rect(player2X, player2Y, paddleWidth, paddleHeight);
+  
+  // Draw ball
+  fill(255);
+  ellipse(ballX, ballY, ballSize, ballSize);
+  
+  // Move paddles
+  if (w) player1Y -= paddleSpeed;
+  if (s) player1Y += paddleSpeed;
+  if (up) player2Y -= paddleSpeed;
+  if (down) player2Y += paddleSpeed;
+  
+  // Collision detection with walls
+  if (ballY <= 0 || ballY >= height) {
+    ballSpeedY *= -1;
+  }
+  
+  // Collision detection with paddles
+  if (ballX <= player1X + paddleWidth && ballY >= player1Y && ballY <= player1Y + paddleHeight) {
+    ballSpeedX *= -1;
+  }
+  
+  if (ballX >= player2X && ballY >= player2Y && ballY <= player2Y + paddleHeight) {
+    ballSpeedX *= -1;
+  }
+  
+  // Check if ball is out of bounds
+  if (ballX < 0) {
+    player2Score++;
+    reset();
+  }
+  
+  if (ballX > width) {
+    player1Score++;
+    reset();
+  }
+  
+  // Move ball
+  ballX += ballSpeedX;
+  ballY += ballSpeedY;
+}
+
+void keyPressed() {
+  if (key == 'w') {
+    w = true;
+  }
+  if (key == 's') {
+    s = true;
+  }
+  if (keyCode == UP) {
+    up = true;
+  }
+  if (keyCode == DOWN) {
+    down = true;
+  }
+}
+
+void keyReleased() {
+  if (key == 'w') {
+    w = false;
+  }
+  if (key == 's') {
+    s = false;
+  }
+  if (keyCode == UP) {
+    up = false;
+  }
+  if (keyCode == DOWN) {
+    down = false;
+  }
+}

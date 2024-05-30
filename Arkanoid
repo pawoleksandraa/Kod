@@ -1,0 +1,110 @@
+int paddleWidth = 100;
+int paddleHeight = 20;
+int paddleSpeed = 8;
+
+int ballSize = 20;
+float ballX, ballY;
+float ballSpeedX, ballSpeedY;
+
+int numBlocksX = 10;
+int numBlocksY = 5;
+int blockWidth, blockHeight;
+int[][] blocks;
+
+boolean gameOver = false;
+
+void setup() {
+  size(800, 600);
+  reset();
+}
+
+void reset() {
+  ballX = width / 2;
+  ballY = height - 100;
+  ballSpeedX = random(-5, 5);
+  ballSpeedY = -5;
+  
+  blockWidth = width / numBlocksX;
+  blockHeight = 30;
+  
+  blocks = new int[numBlocksX][numBlocksY];
+  for (int i = 0; i < numBlocksX; i++) {
+    for (int j = 0; j < numBlocksY; j++) {
+      blocks[i][j] = 1;
+    }
+  }
+}
+
+void draw() {
+  background(0);
+  
+  if (!gameOver) {
+    // Draw paddle
+    fill(255);
+    rect(mouseX - paddleWidth / 2, height - paddleHeight, paddleWidth, paddleHeight);
+    
+    // Draw blocks
+    for (int i = 0; i < numBlocksX; i++) {
+      for (int j = 0; j < numBlocksY; j++) {
+        if (blocks[i][j] == 1) {
+          fill(255, 0, 0);
+          rect(i * blockWidth, j * blockHeight, blockWidth, blockHeight);
+        }
+      }
+    }
+    
+    // Draw ball
+    fill(255);
+    ellipse(ballX, ballY, ballSize, ballSize);
+    
+    // Move ball
+    ballX += ballSpeedX;
+    ballY += ballSpeedY;
+    
+    // Collision detection with walls
+    if (ballX <= 0 || ballX >= width) {
+      ballSpeedX *= -1;
+    }
+    if (ballY <= 0) {
+      ballSpeedY *= -1;
+    }
+    
+    // Collision detection with paddle
+    if (ballY + ballSize/2 >= height - paddleHeight && ballX >= mouseX - paddleWidth / 2 && ballX <= mouseX + paddleWidth / 2) {
+      ballSpeedY *= -1;
+    }
+    
+    // Collision detection with blocks
+    int ballIndexX = int(ballX / blockWidth);
+    int ballIndexY = int(ballY / blockHeight);
+    if (ballIndexX >= 0 && ballIndexX < numBlocksX && ballIndexY >= 0 && ballIndexY < numBlocksY && blocks[ballIndexX][ballIndexY] == 1) {
+      blocks[ballIndexX][ballIndexY] = 0;
+      ballSpeedY *= -1;
+    }
+    
+    // Check for game over
+    boolean allBlocksDestroyed = true;
+    for (int i = 0; i < numBlocksX; i++) {
+      for (int j = 0; j < numBlocksY; j++) {
+        if (blocks[i][j] == 1) {
+          allBlocksDestroyed = false;
+          break;
+        }
+      }
+    }
+    if (allBlocksDestroyed) {
+      gameOver = true;
+    }
+  } else {
+    // Game over screen
+    fill(255);
+    textSize(48);
+    textAlign(CENTER, CENTER);
+    text("Congratulations, You Won!", width/2, height/2);
+  }
+}
+
+void mouseMoved() {
+  // Keep the paddle within the screen bounds
+  mouseX = constrain(mouseX, paddleWidth / 2, width - paddleWidth / 2);
+}
